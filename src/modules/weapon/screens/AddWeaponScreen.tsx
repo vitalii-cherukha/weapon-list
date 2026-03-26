@@ -10,15 +10,19 @@ export function AddWeaponScreen() {
 
   const set = (key: keyof typeof form) => (val: string) => setForm((f) => ({ ...f, [key]: val }));
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!form.model || !form.serialNumber || !form.owner || !form.type) {
       return Alert.alert('Заповніть всі поля');
     }
     try {
-      add(form);
+      await add(form);
       nav.goBack();
-    } catch {
-      Alert.alert('Помилка', 'Серійний номер вже існує');
+    } catch (e: any) {
+      if (e?.message === 'duplicate_serial') {
+        Alert.alert('Помилка', 'Серійний номер вже існує');
+      } else {
+        Alert.alert('Помилка', e?.message ?? 'Не вдалось зберегти');
+      }
     }
   };
 

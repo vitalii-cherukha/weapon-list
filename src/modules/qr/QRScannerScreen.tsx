@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useNavigation } from '@react-navigation/native';
-import { weaponDb } from '../weapon/db/weaponDb';
 import { useWeaponStore } from '../weapon/store/weaponStore';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../app/navigation/types';
@@ -12,7 +11,7 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export function QRScannerScreen() {
   const [scanned, setScanned] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
-  const { updateStatus } = useWeaponStore();
+  const { weapons, updateStatus } = useWeaponStore();
   const nav = useNavigation<Nav>();
 
   if (!permission) return <View style={s.container} />;
@@ -21,18 +20,20 @@ export function QRScannerScreen() {
     return <View style={s.container}><Text style={s.text}>Потрібен доступ до камери</Text></View>;
   }
 
-  const handleScan = ({ data }: { data: string }) => {
+  const handleScan = async ({ data }: { data: string }) => {
     if (scanned) return;
     setScanned(true);
 
-    const weapon = weaponDb.findBySerial(data);
+    const weapon = weapons.find((w) => w.serialNumber === data);
     if (!weapon) {
-      Alert.alert('Не знайдено', `Серійний номер: ${data}`, [{ text: 'OK', onPress: () => setScanned(false) }]);
+      Alert.alert('Не знайдено', `Серійний номер: ${data}`, [
+        { text: 'OK', onPress: () => setScanned(false) },
+      ]);
       return;
     }
 
     const next = weapon.status === 'STORAGE' ? 'ISSUED' : 'STORAGE';
-    updateStatus(weapon.id, next);
+    await updateStatus(weapon.id, next);
     Alert.alert(
       'Статус змінено',
       `${weapon.model}\n${weapon.status} → ${next}`,
@@ -42,7 +43,12 @@ export function QRScannerScreen() {
 
   return (
     <View style={s.container}>
-      <CameraView style={s.camera} facing="back" onBarcodeScanned={handleScan} barcodeScannerSettings={{ barcodeTypes: ['qr'] }}>
+      <CameraView
+        style={s.camera}
+        facing="back"
+        onBarcodeScanned={handleScan}
+        barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
+      >
         <View style={s.overlay}>
           <View style={s.frame} />
           <Text style={s.hint}>Наведіть на QR-код зброї</Text>

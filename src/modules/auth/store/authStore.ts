@@ -7,6 +7,7 @@ type AuthStore = {
   init: () => Promise<void>;
   unlock: (pin: string) => Promise<boolean>;
   setupPin: (pin: string) => Promise<void>;
+  changePin: (oldPin: string, newPin: string) => Promise<boolean>;
 };
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -27,5 +28,12 @@ export const useAuthStore = create<AuthStore>((set) => ({
   setupPin: async (pin) => {
     await savePin(pin);
     set({ isPinSet: true, isLocked: false });
+  },
+
+  changePin: async (oldPin, newPin) => {
+    const ok = await verifyPin(oldPin);
+    if (!ok) return false;
+    await savePin(newPin);
+    return true;
   },
 }));

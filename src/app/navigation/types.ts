@@ -3,4 +3,5 @@ export type RootStackParamList = {
   WeaponDetail: { id: string };
   AddWeapon: undefined;
   QRScanner: undefined;
+  Settings: undefined;
 };
