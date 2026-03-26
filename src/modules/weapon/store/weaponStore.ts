@@ -1,8 +1,11 @@
 import { create } from 'zustand';
 import { Weapon, WeaponStatus } from '../types';
 import { readWeapons, writeWeapons } from '../../../database/jsonStorage';
-import 'react-native-get-random-values';
-import { v4 as uuid } from 'uuid';
+import * as Crypto from 'expo-crypto';
+
+function generateId(): string {
+  return Crypto.randomUUID();
+}
 
 type WeaponStore = {
   weapons: Weapon[];
@@ -26,9 +29,14 @@ export const useWeaponStore = create<WeaponStore>((set, get) => ({
       throw new Error('duplicate_serial');
     }
     const now = Date.now();
-    const weapon: Weapon = { ...data, id: uuid(), status: 'STORAGE', createdAt: now, updatedAt: now };
+    const weapon: Weapon = { ...data, id: generateId(), status: 'STORAGE', createdAt: now, updatedAt: now };
     const updated = [weapon, ...existing];
-    await writeWeapons(updated);
+    try {
+      await writeWeapons(updated);
+    } catch (e) {
+      console.error('[weaponStore] writeWeapons failed:', e);
+      throw e;
+    }
     set({ weapons: updated });
   },
 
