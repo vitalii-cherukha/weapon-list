@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { WeaponListScreen } from '../../modules/weapon/screens/WeaponListScreen';
@@ -9,6 +9,7 @@ import { SettingsScreen } from '../../modules/weapon/screens/SettingsScreen';
 import { QRScannerScreen } from '../../modules/qr/QRScannerScreen';
 import type { RootStackParamList } from './types';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { GearIcon } from '../../shared/ui/icons';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -20,8 +21,11 @@ const screenOptions = {
 
 function GearButton({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList, 'WeaponList'> }) {
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
-      <Text style={{ fontSize: 20, marginRight: 4 }}>⚙️</Text>
+    <TouchableOpacity
+      onPress={() => navigation.navigate('Settings')}
+      style={{ padding: 4, justifyContent: 'center', alignItems: 'center' }}
+    >
+      <GearIcon size={22} color="#fff" />
     </TouchableOpacity>
   );
 }

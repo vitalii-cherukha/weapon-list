@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { CameraIcon, PlusIcon } from '../../../shared/ui/icons';
 import { useNavigation } from '@react-navigation/native';
 import { useWeaponStore } from '../../weapon/store/weaponStore';
 import { Weapon } from '../../weapon/types';
@@ -45,10 +46,10 @@ export function WeaponListScreen() {
       />
       <View style={s.fab_row}>
         <TouchableOpacity style={s.fab} onPress={() => nav.navigate('QRScanner')}>
-          <Text style={s.fabText}>📷</Text>
+          <CameraIcon size={22} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity style={s.fab} onPress={() => nav.navigate('AddWeapon')}>
-          <Text style={s.fabText}>＋</Text>
+          <PlusIcon size={22} color="#fff" />
         </TouchableOpacity>
       </View>
     </View>
@@ -69,5 +70,4 @@ const s = StyleSheet.create({
   empty: { color: '#555', textAlign: 'center', marginTop: 60, fontSize: 15 },
   fab_row: { position: 'absolute', bottom: 24, right: 20, gap: 12, flexDirection: 'row' },
   fab: { backgroundColor: '#2563eb', width: 52, height: 52, borderRadius: 26, justifyContent: 'center', alignItems: 'center' },
-  fabText: { color: '#fff', fontSize: 22 },
 });
