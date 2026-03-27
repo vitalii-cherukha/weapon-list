@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useWeaponStore } from '../store/weaponStore';
+import { BoxIcon, WeaponIcon, IssueIcon, ReturnIcon, TrashIcon } from '../../../shared/ui/icons';
+import { colors } from '../../../shared/constants/colors';
 import type { RootStackParamList } from '../../../app/navigation/types';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -16,13 +18,12 @@ export function WeaponDetailScreen() {
 
   if (!weapon) return <View style={s.container}><Text style={s.empty}>Не знайдено</Text></View>;
 
-  const toggle = () => {
-    const next = weapon.status === 'STORAGE' ? 'ISSUED' : 'STORAGE';
-    updateStatus(weapon.id, next);
-  };
+  const isStorage = weapon.status === 'STORAGE';
+
+  const toggle = () => updateStatus(weapon.id, isStorage ? 'ISSUED' : 'STORAGE');
 
   const confirmDelete = () => {
-    Alert.alert('Видалити?', '', [
+    Alert.alert('Видалити запис?', weapon.model, [
       { text: 'Скасувати', style: 'cancel' },
       { text: 'Видалити', style: 'destructive', onPress: () => { remove(weapon.id); nav.goBack(); } },
     ]);
@@ -31,42 +32,65 @@ export function WeaponDetailScreen() {
   return (
     <View style={s.container}>
       <View style={s.card}>
-        <Row label="Модель" value={weapon.model} />
-        <Row label="Серійний №" value={weapon.serialNumber} />
-        <Row label="Власник" value={weapon.owner} />
-        <Row label="Тип" value={weapon.type} />
-        <Row label="Статус" value={weapon.status === 'STORAGE' ? '📦 Склад' : '🔫 Видано'} />
+        <Row label="МОДЕЛЬ" value={weapon.model} />
+        <Row label="СЕРІЙНИЙ №" value={weapon.serialNumber} mono />
+        <Row label="ВЛАСНИК" value={weapon.owner} />
+        <Row label="ТИП" value={weapon.type} />
+        <View style={s.row}>
+          <Text style={s.label}>СТАТУС</Text>
+          <View style={[s.statusBadge, isStorage ? s.storageBadge : s.issuedBadge]}>
+            {isStorage
+              ? <BoxIcon size={14} color={colors.storageText} />
+              : <WeaponIcon size={14} color={colors.issuedText} />}
+            <Text style={[s.statusText, { color: isStorage ? colors.storageText : colors.issuedText }]}>
+              {isStorage ? 'СКЛАД' : 'ВИДАНО'}
+            </Text>
+          </View>
+        </View>
       </View>
-      <TouchableOpacity style={[s.btn, weapon.status === 'STORAGE' ? s.issue : s.ret]} onPress={toggle}>
-        <Text style={s.btnText}>{weapon.status === 'STORAGE' ? 'Видати' : 'Повернути'}</Text>
+
+      <TouchableOpacity style={[s.btn, isStorage ? s.issueBtn : s.retBtn]} onPress={toggle}>
+        <View style={s.btnInner}>
+          {isStorage ? <IssueIcon size={20} color={colors.textPrimary} /> : <ReturnIcon size={20} color={colors.textPrimary} />}
+          <Text style={s.btnText}>{isStorage ? 'Видати' : 'Повернути'}</Text>
+        </View>
       </TouchableOpacity>
-      <TouchableOpacity style={s.del} onPress={confirmDelete}>
-        <Text style={s.delText}>Видалити запис</Text>
+
+      <TouchableOpacity style={s.delBtn} onPress={confirmDelete}>
+        <View style={s.btnInner}>
+          <TrashIcon size={18} color={colors.dangerText} />
+          <Text style={s.delText}>Видалити запис</Text>
+        </View>
       </TouchableOpacity>
     </View>
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
     <View style={s.row}>
       <Text style={s.label}>{label}</Text>
-      <Text style={s.value}>{value}</Text>
+      <Text style={[s.value, mono && { fontFamily: 'monospace' }]}>{value}</Text>
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f0f0f', padding: 16 },
-  card: { backgroundColor: '#1a1a1a', borderRadius: 12, padding: 16, gap: 12 },
-  row: { flexDirection: 'row', justifyContent: 'space-between' },
-  label: { color: '#888', fontSize: 14 },
-  value: { color: '#fff', fontSize: 14, fontWeight: '500' },
-  btn: { marginTop: 20, padding: 16, borderRadius: 12, alignItems: 'center' },
-  issue: { backgroundColor: '#7f1d1d' },
-  ret: { backgroundColor: '#166534' },
-  btnText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  del: { marginTop: 12, padding: 14, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#7f1d1d' },
-  delText: { color: '#ef4444', fontSize: 15 },
-  empty: { color: '#555', textAlign: 'center', marginTop: 60 },
+  container: { flex: 1, backgroundColor: colors.bg, padding: 16 },
+  card: { backgroundColor: colors.bgCard, borderRadius: 6, padding: 16, gap: 14, borderWidth: 1, borderColor: colors.border },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  label: { color: colors.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 1.5 },
+  value: { color: colors.textPrimary, fontSize: 14, fontWeight: '500' },
+  statusBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 4 },
+  storageBadge: { backgroundColor: colors.storage },
+  issuedBadge: { backgroundColor: colors.issued },
+  statusText: { fontSize: 11, fontWeight: '700', letterSpacing: 1 },
+  btn: { marginTop: 20, padding: 16, borderRadius: 6, alignItems: 'center', borderWidth: 1 },
+  issueBtn: { backgroundColor: colors.issued, borderColor: colors.dangerText },
+  retBtn: { backgroundColor: colors.storage, borderColor: colors.storageText },
+  btnInner: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  btnText: { color: colors.textPrimary, fontSize: 16, fontWeight: '600', letterSpacing: 0.5 },
+  delBtn: { marginTop: 10, padding: 14, borderRadius: 6, alignItems: 'center', borderWidth: 1, borderColor: colors.danger },
+  delText: { color: colors.dangerText, fontSize: 15 },
+  empty: { color: colors.textMuted, textAlign: 'center', marginTop: 60 },
 });

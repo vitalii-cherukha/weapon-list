@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useAuthStore } from '../store/authStore';
+import { LockIcon, LockSetupIcon } from '../../../shared/ui/icons';
+import { colors } from '../../../shared/constants/colors';
 
 export function LockScreen() {
   const [pin, setPin] = useState('');
-  const { isLocked, isPinSet, unlock, setupPin } = useAuthStore();
+  const { isPinSet, unlock, setupPin } = useAuthStore();
 
   const handleSubmit = async () => {
     if (!isPinSet) {
@@ -19,7 +21,10 @@ export function LockScreen() {
 
   return (
     <View style={s.container}>
-      <Text style={s.title}>{isPinSet ? '🔒 Введіть PIN' : '🔐 Встановіть PIN'}</Text>
+      {isPinSet
+        ? <LockIcon size={52} color={colors.accent} />
+        : <LockSetupIcon size={52} color={colors.accent} />}
+      <Text style={s.title}>{isPinSet ? 'Введіть PIN' : 'Встановіть PIN'}</Text>
       <TextInput
         style={s.input}
         value={pin}
@@ -28,7 +33,7 @@ export function LockScreen() {
         secureTextEntry
         maxLength={8}
         placeholder="••••"
-        placeholderTextColor="#666"
+        placeholderTextColor={colors.textMuted}
       />
       <TouchableOpacity style={s.btn} onPress={handleSubmit}>
         <Text style={s.btnText}>{isPinSet ? 'Увійти' : 'Зберегти PIN'}</Text>
@@ -38,9 +43,9 @@ export function LockScreen() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f0f0f', gap: 16 },
-  title: { color: '#fff', fontSize: 22, fontWeight: '600' },
-  input: { borderWidth: 1, borderColor: '#333', color: '#fff', fontSize: 24, letterSpacing: 8, padding: 12, borderRadius: 10, width: 180, textAlign: 'center', backgroundColor: '#1a1a1a' },
-  btn: { backgroundColor: '#2563eb', paddingHorizontal: 32, paddingVertical: 12, borderRadius: 10 },
-  btnText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg, gap: 16 },
+  title: { color: colors.textPrimary, fontSize: 22, fontWeight: '600', letterSpacing: 1 },
+  input: { borderWidth: 1, borderColor: colors.border, color: colors.textPrimary, fontSize: 24, letterSpacing: 8, padding: 12, borderRadius: 6, width: 180, textAlign: 'center', backgroundColor: colors.bgInput },
+  btn: { backgroundColor: colors.primary, paddingHorizontal: 32, paddingVertical: 12, borderRadius: 6, borderWidth: 1, borderColor: colors.primaryLight },
+  btnText: { color: colors.textPrimary, fontSize: 16, fontWeight: '600', letterSpacing: 1 },
 });

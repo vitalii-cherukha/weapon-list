@@ -11,12 +11,15 @@ import type { RootStackParamList } from './types';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { GearIcon } from '../../shared/ui/icons';
 
+import { colors } from '../../shared/constants/colors';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const screenOptions = {
-  headerStyle: { backgroundColor: '#0f0f0f' },
-  headerTintColor: '#fff',
-  contentStyle: { backgroundColor: '#0f0f0f' },
+  headerStyle: { backgroundColor: colors.bgCard },
+  headerTintColor: colors.textPrimary,
+  headerTitleStyle: { fontWeight: '700' as const, letterSpacing: 1 },
+  contentStyle: { backgroundColor: colors.bg },
 };
 
 function GearButton({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList, 'WeaponList'> }) {
@@ -38,7 +41,7 @@ export function AppNavigator() {
           name="WeaponList"
           component={WeaponListScreen}
           options={({ navigation }) => ({
-            title: '🔫 Облік зброї',
+            title: 'Облік зброї',
             headerRight: () => <GearButton navigation={navigation} />,
           })}
         />
